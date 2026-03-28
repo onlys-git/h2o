@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>질량보존의 법칙 — 분자 모형</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1976D2; --bluel:#E3F2FD; --bluem:#BBDEFB;
+  --ora:#E65100;  --oral:#FFF3E0;  --oram:#FFE0B2;
+  --grn:#2E7D32;  --grnl:#E8F5E9;
+  --bg:#EEF2FA; --white:#fff;
+  --shadow:rgba(0,0,0,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  font-family:'Noto Sans KR',-apple-system,sans-serif;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  touch-action:none;user-select:none;
+}
+
+/* HEADER */
+#hdr{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#0D47A1,#1976D2);
+  color:#fff;padding:8px 12px;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 2px 8px var(--shadow);
+}
+#hdr h1{font-size:clamp(12px,2.4vw,16px);font-weight:900;line-height:1.2;}
+#hdr small{font-size:clamp(8px,1.4vw,10px);opacity:.75;}
+#undo-btn,#reset-btn{
+  flex-shrink:0;padding:6px 10px;border-radius:20px;border:none;
+  font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+#undo-btn{background:rgba(255,255,255,.2);color:#fff;margin-left:auto;}
+#reset-btn{background:#fff;color:var(--blue);}
+
+/* TABS */
+#tabs{
+  flex-shrink:0;display:flex;overflow-x:auto;
+  background:#0D47A1;padding:0 8px;gap:2px;scrollbar-width:none;
+  border-bottom:2px solid rgba(255,255,255,.1);
+}
+#tabs::-webkit-scrollbar{display:none;}
+.tab{
+  flex-shrink:0;padding:6px 10px;
+  color:rgba(255,255,255,.55);font-size:clamp(9px,1.5vw,11px);
+  font-family:monospace;cursor:pointer;white-space:nowrap;
+  border-bottom:3px solid transparent;transition:all .2s;
+}
+.tab.on{color:#FFD54F;border-bottom-color:#FFD54F;font-weight:700;}
+
+/* HINT */
+#hint{
+  flex-shrink:0;background:#FFF8E1;border-bottom:2px solid #FFE082;
+  padding:5px 12px;font-size:clamp(9px,1.5vw,11px);color:#5D4037;
+  display:flex;align-items:center;gap:5px;line-height:1.4;
+}
+
+/* EQUATION BAR */
+#eq-bar{
+  flex-shrink:0;background:var(--white);
+  border-bottom:2px solid var(--bluem);
+  padding:7px 10px;
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:4px;box-shadow:0 1px 4px var(--shadow);
+}
+.eq-c{
+  min-width:28px;height:28px;padding:0 5px;
+  border-radius:7px;border:2.5px solid var(--bluem);
+  background:var(--bluel);color:var(--blue);
+  font-size:clamp(12px,2vw,17px);font-weight:900;font-family:monospace;
+  display:flex;align-items:center;justify-content:center;transition:all .3s;
+}
+.eq-c.active{border-color:var(--ora);background:#FFF3E0;color:var(--ora);}
+.eq-c.correct{border-color:#4CAF50;background:var(--grnl);color:var(--grn);}
+.eq-f{font-size:clamp(12px,2vw,17px);font-weight:700;color:#1A237E;font-family:'Times New Roman',serif;}
+.eq-plus{font-size:16px;font-weight:900;color:#90A4AE;padding:0 2px;}
+.eq-arr{font-size:16px;font-weight:900;color:var(--blue);padding:0 4px;}
+
+/* MAIN */
+#main{flex:1;min-height:0;display:flex;}
+
+/* PALETTE */
+#pal{
+  width:78px;flex-shrink:0;
+  background:linear-gradient(180deg,#E3F2FD,#E8F5E9);
+  border-right:2px solid var(--bluem);
+  padding:8px 5px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  overflow-y:auto;scrollbar-width:none;
+}
+#pal::-webkit-scrollbar{display:none;}
+.pal-hd{font-size:9px;color:#607D8B;text-align:center;text-transform:uppercase;letter-spacing:.8px;font-weight:700;line-height:1.3;}
+
+.abtn{
+  width:60px;height:60px;border-radius:50%;border:3px solid;
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:grab;touch-action:none;flex-shrink:0;
+  box-shadow:0 4px 10px rgba(0,0,0,.2),inset 0 -4px 6px rgba(0,0,0,.14),inset 0 4px 6px rgba(255,255,255,.28);
+  transition:transform .1s;
+}
+.abtn:active{transform:scale(.9);}
+.abtn .az{position:absolute;top:6px;left:8px;font-size:8px;font-weight:700;opacity:.7;}
+.abtn .as{font-size:clamp(14px,2vw,19px);font-weight:900;}
+.abtn .am{position:absolute;bottom:5px;right:7px;font-size:8px;font-weight:700;opacity:.7;}
+.abtn-lb{font-size:8px;color:#546E7A;text-align:center;margin-top:-3px;line-height:1.3;}
+
+/* WORK */
+#work{flex:1;min-width:0;display:flex;}
+.zone{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+  border:3px dashed;overflow:hidden;transition:background .2s;
+}
+#rz{border-color:var(--blue);background:var(--bluel);}
+#pz{border-color:var(--ora);background:var(--oral);}
+#rz.over{background:#D6EAFF;border-style:solid;}
+#pz.over{background:#FFE0C0;border-style:solid;}
+
+.z-hdr{
+  flex-shrink:0;padding:6px 10px;
+  display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid;
+}
+#rz .z-hdr{background:var(--bluem);border-color:var(--blue);}
+#pz .z-hdr{background:var(--oram);border-color:var(--ora);}
+.z-title{font-size:clamp(9px,1.7vw,12px);font-weight:900;}
+#rz .z-title{color:#0D47A1;}
+#pz .z-title{color:#BF360C;}
+.z-tag{font-family:monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.7);}
+#rz .z-tag{color:#0D47A1;}
+#pz .z-tag{color:#BF360C;}
+
+/* MOLECULE DISPLAY */
+.z-body{
+  flex:1;min-height:0;padding:8px;
+  display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;
+  overflow-y:auto;scrollbar-width:thin;
+}
+.z-body::-webkit-scrollbar{width:3px;}
+.z-body::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
+
+/* MOLECULE CARD — now holds SVG model */
+.mcl{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:rgba(255,255,255,.88);
+  border-radius:14px;padding:7px 8px 5px;
+  border:2px solid rgba(0,0,0,.07);
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  cursor:pointer;position:relative;
+  animation:popIn .22s cubic-bezier(.34,1.56,.64,1);
+  transition:transform .1s,box-shadow .1s;
+  min-width:64px;
+}
+.mcl:active{transform:scale(.93);}
+.mcl.extra{border-color:rgba(239,83,80,.5);background:rgba(255,235,238,.88);}
+.mcl .xbtn{
+  position:absolute;top:-7px;right:-7px;
+  width:17px;height:17px;border-radius:50%;
+  background:#EF5350;color:#fff;font-size:10px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;pointer-events:none;
+}
+.mcl:hover .xbtn{opacity:1;}
+.mcl-label{font-size:9px;color:#607D8B;font-family:monospace;font-weight:700;letter-spacing:.3px;}
+
+@keyframes popIn{
+  from{transform:scale(0) rotate(-12deg);opacity:0;}
+  to{transform:scale(1) rotate(0);opacity:1;}
+}
+
+/* small lone atom ball for extra/leftover */
+.ab{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;
+  border:2px solid;
+  box-shadow:inset 0 -3px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.3);
+}
+
+/* FOOTER COUNTS */
+.z-foot{
+  flex-shrink:0;padding:5px 8px;border-top:2px solid;
+  display:flex;gap:5px;flex-wrap:wrap;align-items:center;min-height:30px;
+}
+#rz .z-foot{background:var(--bluem);border-color:var(--blue);}
+#pz .z-foot{background:var(--oram);border-color:var(--ora);}
+.cbadge{
+  display:flex;align-items:center;gap:3px;
+  background:rgba(255,255,255,.8);padding:2px 7px;
+  border-radius:8px;font-size:10px;font-weight:700;border:1.5px solid rgba(0,0,0,.07);
+}
+.cdot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(0,0,0,.12);}
+
+/* ARROW */
+#zarr{
+  width:28px;flex-shrink:0;background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  border-left:1px solid var(--bluem);border-right:1px solid var(--oram);
+}
+
+/* BOTTOM */
+#bot{
+  flex-shrink:0;background:var(--white);border-top:2px solid var(--bluem);
+  padding:7px 10px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 -2px 8px var(--shadow);
+}
+#scale{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;}
+#sbeam{width:100px;height:14px;position:relative;display:flex;align-items:center;justify-content:center;}
+#sbar{
+  width:88px;height:5px;background:#B0BEC5;border-radius:3px;
+  transform-origin:center;transition:transform .5s cubic-bezier(.34,1.56,.64,1),background .3s;
+}
+#sbar.ok{background:#4CAF50;box-shadow:0 0 8px rgba(76,175,80,.4);}
+#spiv{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:9px;height:9px;background:#607D8B;border-radius:50%;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+#slbl{font-size:8px;color:#90A4AE;}
+
+#stat{
+  flex:1;text-align:center;font-size:clamp(9px,1.7vw,12px);font-weight:700;
+  padding:6px 8px;border-radius:9px;background:#F5F5F5;color:#90A4AE;
+  transition:all .3s;line-height:1.4;
+}
+#stat.ok{background:var(--grnl);color:var(--grn);animation:bump .35s;}
+#stat.warn{background:#FFF3E0;color:var(--ora);}
+@keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+
+#chk-btn{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#43A047,#2E7D32);
+  color:#fff;border:none;padding:10px 16px;border-radius:11px;
+  font-size:clamp(11px,2vw,14px);font-weight:900;cursor:pointer;font-family:inherit;
+  box-shadow:0 3px 8px rgba(46,125,50,.35);
+}
+#chk-btn:active{transform:scale(.95);}
+
+/* GHOST */
+#gh{
+  position:fixed;z-index:9999;pointer-events:none;
+  width:50px;height:50px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;
+  border:3px solid rgba(255,255,255,.6);
+  box-shadow:0 10px 28px rgba(0,0,0,.4);
+  transform:scale(1.25);
+}
+
+/* CONFETTI */
+.cf{
+  position:fixed;pointer-events:none;z-index:99999;
+  animation:cffall 1.8s ease-out forwards;border-radius:2px;
+}
+@keyframes cffall{
+  from{opacity:1;transform:translateY(0) rotate(0);}
+  to{opacity:0;transform:translateY(95vh) rotate(720deg);}
+}
+
+@media(max-width:480px){
+  #pal{width:66px;}.abtn{width:52px;height:52px;}
+  #zarr{width:20px;}
+}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div style="font-size:22px">⚗️</div>
+  <div>
+    <h1>질량보존의 법칙 — 분자 모형</h1>
+    <small>미래엔 중학교 3학년 과학 1단원</small>
+  </div>
+  <button id="undo-btn" onclick="undo()">↺ 취소</button>
+  <button id="reset-btn" onclick="resetAll()">🗑 초기화</button>
+</div>
+
+<div id="tabs"></div>
+<div id="hint">💡 <span id="hint-txt"></span></div>
+<div id="eq-bar"></div>
+
+<div id="main">
+  <div id="pal"><div class="pal-hd">원자<br>생성</div></div>
+  <div id="work">
+    <div class="zone" id="rz">
+      <div class="z-hdr">
+        <div class="z-title">⚗ 반응물 (Reactants)</div>
+        <div class="z-tag" id="r-tag"></div>
+      </div>
+      <div class="z-body" id="r-body"></div>
+      <div class="z-foot" id="r-foot"></div>
+    </div>
+    <div id="zarr">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M2 10H18M12 4L18 10L12 16" stroke="#1976D2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="zone" id="pz">
+      <div class="z-hdr">
+        <div class="z-title">✦ 생성물 (Products)</div>
+        <div class="z-tag" id="p-tag"></div>
+      </div>
+      <div class="z-body" id="p-body"></div>
+      <div class="z-foot" id="p-foot"></div>
+    </div>
+  </div>
+</div>
+
+<div id="bot">
+  <div id="scale">
+    <div id="sbeam"><div id="sbar"></div><div id="spiv"></div></div>
+    <div id="slbl">⚖️ 양팔저울</div>
+  </div>
+  <div id="stat">왼쪽 원자를 드래그해서 반응물·생성물 영역에 넣으세요</div>
+  <button id="chk-btn" onclick="check()">✓ 확인</button>
+</div>
+
+<div id="gh"></div>
+
+<script>
+/* ═══════════════════ ATOM DATA ══════════════════════════ */
+const AD = {
+  H:  {num:1,  mass:1,  bg:'#FFD54F',bd:'#E6A800',tx:'#5D4037', r:13},
+  O:  {num:8,  mass:16, bg:'#EF5350',bd:'#B71C1C',tx:'#fff',     r:16},
+  C:  {num:6,  mass:12, bg:'#78909C',bd:'#263238',tx:'#fff',     r:16},
+  N:  {num:7,  mass:14, bg:'#66BB6A',bd:'#1B5E20',tx:'#fff',     r:15},
+  Na: {num:11, mass:23, bg:'#FFF176',bd:'#F57F17',tx:'#5D4037',  r:17},
+  Cl: {num:17, mass:35, bg:'#CE93D8',bd:'#6A1B9A',tx:'#4A148C',  r:17},
+  Fe: {num:26, mass:56, bg:'#FF8A65',bd:'#BF360C',tx:'#fff',     r:18},
+  Cu: {num:29, mass:64, bg:'#80CBC4',bd:'#004D40',tx:'#004D40',  r:17},
+};
+
+/* ═══════════════════ MOLECULAR GEOMETRY ════════════════
+  Each molecule: atoms[], bonds[], viewBox
+  atoms: {el, x, y}
+  bonds: {i,j, order}  order=1 single, 2 double, 3 triple
+  All coords in SVG units; viewBox auto-calculated below
+══════════════════════════════════════════════════════════ */
+const GEOM = {
+  /* Diatomic */
+  'H₂':    { atoms:[{el:'H',x:0,y:0},{el:'H',x:38,y:0}],
+              bonds:[{i:0,j:1,o:1}] },
+  'O₂':    { atoms:[{el:'O',x:0,y:0},{el:'O',x:44,y:0}],
+              bonds:[{i:0,j:1,o:2}] },
+  'N₂':    { atoms:[{el:'N',x:0,y:0},{el:'N',x:40,y:0}],
+              bonds:[{i:0,j:1,o:3}] },
+  'Cl₂':   { atoms:[{el:'Cl',x:0,y:0},{el:'Cl',x:46,y:0}],
+              bonds:[{i:0,j:1,o:1}] },
+  'HCl':   { atoms:[{el:'H',x:0,y:0},{el:'Cl',x:42,y:0}],
+              bonds:[{i:0,j:1,o:1}] },
+
+  /* H₂O — bent 104.5° */
+  'H₂O':   (function(){
+    const bL=40, ang=104.5*Math.PI/180, half=ang/2;
+    return {
+      atoms:[
+        {el:'O',x:0,   y:0},
+        {el:'H',x:-bL*Math.sin(half), y: bL*Math.cos(half)},
+        {el:'H',x: bL*Math.sin(half), y: bL*Math.cos(half)},
+      ],
+      bonds:[{i:0,j:1,o:1},{i:0,j:2,o:1}]
+    };
+  })(),
+
+  /* CO₂ — linear O=C=O */
+  'CO₂':   { atoms:[{el:'O',x:-48,y:0},{el:'C',x:0,y:0},{el:'O',x:48,y:0}],
+              bonds:[{i:0,j:1,o:2},{i:1,j:2,o:2}] },
+
+  /* CH₄ — tetrahedral 2D projection */
+  'CH₄':   { atoms:[
+    {el:'C',x:0,  y:0},
+    {el:'H',x:0,  y:-46},
+    {el:'H',x:44, y:20},
+    {el:'H',x:-44,y:20},
+    {el:'H',x:0,  y:36},
+  ], bonds:[{i:0,j:1,o:1},{i:0,j:2,o:1},{i:0,j:3,o:1},{i:0,j:4,o:1}] },
+
+  /* NH₃ — trigonal pyramidal */
+  'NH₃':   (function(){
+    const bL=42, angles=[270, 30, 150].map(d=>d*Math.PI/180);
+    return {
+      atoms:[
+        {el:'N',x:0,y:0},
+        {el:'H',x:bL*Math.cos(angles[0]),y:bL*Math.sin(angles[0])},
+        {el:'H',x:bL*Math.cos(angles[1]),y:bL*Math.sin(angles[1])},
+        {el:'H',x:bL*Math.cos(angles[2]),y:bL*Math.sin(angles[2])},
+      ],
+      bonds:[{i:0,j:1,o:1},{i:0,j:2,o:1},{i:0,j:3,o:1}]
+    };
+  })(),
+
+  /* NaCl — ionic (side by side) */
+  'NaCl':  { atoms:[{el:'Na',x:-26,y:0},{el:'Cl',x:26,y:0}],
+              bonds:[{i:0,j:1,o:1}] },
+
+  /* CuO — ionic */
+  'CuO':   { atoms:[{el:'Cu',x:-26,y:0},{el:'O',x:26,y:0}],
+              bonds:[{i:0,j:1,o:1}] },
+
+  /* Fe₂O₃ — two Fe top, three O bottom row */
+  'Fe₂O₃': { atoms:[
+    {el:'Fe',x:-38,y:-18},
+    {el:'Fe',x: 38,y:-18},
+    {el:'O', x:-50,y: 22},
+    {el:'O', x:  0,y: 30},
+    {el:'O', x: 50,y: 22},
+  ], bonds:[{i:0,j:2,o:1},{i:0,j:3,o:1},{i:1,j:3,o:1},{i:1,j:4,o:1},{i:0,j:1,o:1}] },
+
+  /* Monatomic */
+  'Na':    { atoms:[{el:'Na',x:0,y:0}], bonds:[] },
+  'Fe':    { atoms:[{el:'Fe',x:0,y:0}], bonds:[] },
+  'Cu':    { atoms:[{el:'Cu',x:0,y:0}], bonds:[] },
+  'C':     { atoms:[{el:'C', x:0,y:0}], bonds:[] },
+};
+
+/* Molecule → atom composition */
+const COMP = {
+  'H₂':    {H:2}, 'O₂':   {O:2}, 'N₂':  {N:2}, 'Cl₂':  {Cl:2},
+  'HCl':   {H:1,Cl:1}, 'H₂O':  {H:2,O:1},
+  'CO₂':   {C:1,O:2},  'CH₄':  {C:1,H:4},
+  'NH₃':   {N:1,H:3},  'NaCl': {Na:1,Cl:1},
+  'CuO':   {Cu:1,O:1}, 'Fe₂O₃':{Fe:2,O:3},
+  'Na':    {Na:1}, 'Fe': {Fe:1}, 'Cu': {Cu:1}, 'C': {C:1},
+};
+
+const RXN = [
+  {name:'수소의 연소', law:'질량보존',
+   tab:'2H₂+O₂→2H₂O',
+   r:[{f:'H₂',n:2},{f:'O₂',n:1}], p:[{f:'H₂O',n:2}],
+   hint:'H₂ 2개 + O₂ 1개 → H₂O 2개. H 4개, O 2개가 양쪽에 동일해야 합니다.'},
+  {name:'탄소의 연소', law:'질량보존',
+   tab:'C+O₂→CO₂',
+   r:[{f:'C',n:1},{f:'O₂',n:1}], p:[{f:'CO₂',n:1}],
+   hint:'C 1개 + O₂ 1개 → CO₂ 1개 (이산화탄소: O=C=O 직선 구조)'},
+  {name:'메테인 연소', law:'질량보존',
+   tab:'CH₄+2O₂→CO₂+2H₂O',
+   r:[{f:'CH₄',n:1},{f:'O₂',n:2}], p:[{f:'CO₂',n:1},{f:'H₂O',n:2}],
+   hint:'메테인 1 + 산소 2 → 이산화탄소 1 + 물 2. C1, H4, O4 균형 맞추세요.'},
+  {name:'암모니아 합성', law:'일정성분비',
+   tab:'N₂+3H₂→2NH₃',
+   r:[{f:'N₂',n:1},{f:'H₂',n:3}], p:[{f:'NH₃',n:2}],
+   hint:'N₂ 1 + H₂ 3 → NH₃ 2. 암모니아는 삼각뿔 구조입니다.'},
+  {name:'염화수소 생성', law:'기체반응법칙',
+   tab:'H₂+Cl₂→2HCl',
+   r:[{f:'H₂',n:1},{f:'Cl₂',n:1}], p:[{f:'HCl',n:2}],
+   hint:'H₂ 1 + Cl₂ 1 → HCl 2. 기체 부피비 1:1:2 입니다.'},
+  {name:'철의 산화(녹)', law:'질량보존',
+   tab:'4Fe+3O₂→2Fe₂O₃',
+   r:[{f:'Fe',n:4},{f:'O₂',n:3}], p:[{f:'Fe₂O₃',n:2}],
+   hint:'Fe 4 + O₂ 3 → Fe₂O₃ 2. Fe 4개, O 6개 균형.'},
+  {name:'염화나트륨 생성', law:'질량보존',
+   tab:'2Na+Cl₂→2NaCl',
+   r:[{f:'Na',n:2},{f:'Cl₂',n:1}], p:[{f:'NaCl',n:2}],
+   hint:'Na 원자 2 + Cl₂ 1 → NaCl 2. 이온 결합 물질입니다.'},
+  {name:'산화구리(Ⅱ) 환원', law:'질량보존',
+   tab:'2CuO+C→2Cu+CO₂',
+   r:[{f:'CuO',n:2},{f:'C',n:1}], p:[{f:'Cu',n:2},{f:'CO₂',n:1}],
+   hint:'CuO 2 + C 1 → Cu 2 + CO₂ 1. Cu2, O2, C1 균형.'},
+];
+
+/* ═══════════════════ STATE ══════════════════════════════ */
+let ri=0, rAt={}, pAt={}, hist=[];
+
+/* ═══════════════════ SVG MOLECULE BUILDER ═══════════════ */
+function molSVG(formula) {
+  const geom = GEOM[formula];
+  if (!geom) return '';
+
+  const atoms = geom.atoms;
+  const bonds = geom.bonds;
+  const PAD = 20;
+
+  // Compute viewBox
+  const xs = atoms.map(a => a.x);
+  const ys = atoms.map(a => a.y);
+  const minX = Math.min(...xs) - PAD;
+  const minY = Math.min(...ys) - PAD;
+  const maxX = Math.max(...xs) + PAD;
+  const maxY = Math.max(...ys) + PAD;
+  const W = maxX - minX;
+  const H = maxY - minY;
+
+  // Scale to max 110px wide, 90px tall
+  const MAXW = 110, MAXH = 86;
+  const scale = Math.min(MAXW / W, MAXH / H, 1);
+  const svgW = Math.round(W * scale);
+  const svgH = Math.round(H * scale);
+
+  function tx(x) { return (x - minX) * scale; }
+  function ty(y) { return (y - minY) * scale; }
+  function tr(r) { return r * scale; }
+
+  let svgParts = [];
+
+  // Draw bonds
+  bonds.forEach(({i, j, o}) => {
+    const a = atoms[i], b = atoms[j];
+    const ax = tx(a.x), ay = ty(a.y);
+    const bx = tx(b.x), by = ty(b.y);
+    const dx = bx - ax, dy = by - ay;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const nx = -dy/len, ny = dx/len; // normal
+
+    const gap = 3.5 * scale;  // offset for double/triple bonds
+    const offsets = o === 1 ? [0] : o === 2 ? [-gap/2, gap/2] : [-gap, 0, gap];
+
+    offsets.forEach(off => {
+      const ox = nx * off, oy = ny * off;
+      svgParts.push(`<line
+        x1="${(ax+ox).toFixed(1)}" y1="${(ay+oy).toFixed(1)}"
+        x2="${(bx+ox).toFixed(1)}" y2="${(by+oy).toFixed(1)}"
+        stroke="#546E7A" stroke-width="${(2*scale).toFixed(1)}" stroke-linecap="round"/>`);
+    });
+  });
+
+  // Draw atoms (back to front — draw bonds already, now spheres)
+  atoms.forEach(({el, x, y}) => {
+    const a = AD[el] || {bg:'#aaa', bd:'#888', tx:'#fff', r:14};
+    const cx = tx(x), cy = ty(y);
+    const r  = tr(a.r);
+
+    // Radial gradient for 3D sphere illusion
+    const gid = `g_${el}_${Math.round(cx)}_${Math.round(cy)}`;
+    svgParts.push(`
+      <defs>
+        <radialGradient id="${gid}" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stop-color="${lighten(a.bg)}" stop-opacity="1"/>
+          <stop offset="100%" stop-color="${darken(a.bg)}" stop-opacity="1"/>
+        </radialGradient>
+      </defs>
+      <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}"
+        fill="url(#${gid})" stroke="${a.bd}" stroke-width="${(1.5*scale).toFixed(1)}"/>
+      <text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}"
+        text-anchor="middle" dominant-baseline="central"
+        fill="${a.tx}"
+        font-family="'Noto Sans KR','Space Mono',monospace"
+        font-size="${(r * 0.95).toFixed(1)}"
+        font-weight="900">${el}</text>`);
+  });
+
+  return `<svg xmlns="http://www.w3.org/2000/svg"
+    width="${svgW}" height="${svgH}"
+    viewBox="0 0 ${svgW} ${svgH}"
+    style="overflow:visible">${svgParts.join('')}</svg>`;
+}
+
+function lighten(hex) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)})`;
+}
+function darken(hex) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.max(0,r-30)},${Math.max(0,g-30)},${Math.max(0,b-30)})`;
+}
+
+/* ═══════════════════ HELPERS ════════════════════════════ */
+function els(){
+  const s=new Set();
+  const rx=RXN[ri];
+  [...rx.r,...rx.p].forEach(({f})=>Object.keys(COMP[f]).forEach(e=>s.add(e)));
+  return [...s];
+}
+
+function group(atoms, molDefs){
+  const rem={...atoms};
+  const grps=[];
+  for(const {f} of molDefs){
+    const rec=COMP[f]; let n=Infinity;
+    for(const [e,c] of Object.entries(rec)) n=Math.min(n,Math.floor((rem[e]||0)/c));
+    if(!isFinite(n)) n=0;
+    grps.push({f,n});
+    for(const [e,c] of Object.entries(rec)){rem[e]=(rem[e]||0)-n*c;if(rem[e]<=0)delete rem[e];}
+  }
+  return {grps, extra:{...rem}};
+}
+
+/* ═══════════════════ RENDER ═════════════════════════════ */
+function render(){
+  renderTabs(); renderPal(); renderEq();
+  renderZone('r',rAt,RXN[ri].r);
+  renderZone('p',pAt,RXN[ri].p);
+  renderScale(); updateStat();
+  document.getElementById('hint-txt').innerHTML=
+    `<strong>${RXN[ri].name}</strong> (${RXN[ri].law}) — ${RXN[ri].hint}`;
+  document.getElementById('r-tag').textContent=RXN[ri].r.map(x=>x.f).join('+');
+  document.getElementById('p-tag').textContent=RXN[ri].p.map(x=>x.f).join('+');
+}
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=
+    RXN.map((r,i)=>`<div class="tab${i===ri?' on':''}" onclick="selRxn(${i})">${r.tab}</div>`).join('');
+}
+
+function renderPal(){
+  const pal=document.getElementById('pal');
+  [...pal.querySelectorAll('.pal-wrap')].forEach(e=>e.remove());
+  els().forEach(el=>{
+    const a=AD[el];
+    const w=document.createElement('div');
+    w.className='pal-wrap';
+    w.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;';
+    w.innerHTML=`
+      <div class="abtn" style="background:${a.bg};border-color:${a.bd};color:${a.tx}" data-el="${el}">
+        <span class="az">${a.num}</span>
+        <span class="as">${el}</span>
+        <span class="am">${a.mass}</span>
+      </div>
+      <div class="abtn-lb">원자생성<br>(Create)</div>`;
+    w.querySelector('.abtn').addEventListener('pointerdown',e=>beginDrag(e,el));
+    pal.appendChild(w);
+  });
+}
+
+function renderEq(){
+  const rx=RXN[ri], rg=group(rAt,rx.r), pg=group(pAt,rx.p);
+  function coef(grps,f,ans){
+    const g=grps.grps.find(x=>x.f===f), n=g?g.n:0;
+    const cls=n===0?'':(n===ans?'correct':'active');
+    return `<div class="eq-c ${cls}">${n||'?'}</div>`;
+  }
+  const p=[];
+  rx.r.forEach(({f,n},i)=>{if(i)p.push('<span class="eq-plus">+</span>');p.push(`${coef(rg,f,n)}<span class="eq-f">${f}</span>`);});
+  p.push('<span class="eq-arr">→</span>');
+  rx.p.forEach(({f,n},i)=>{if(i)p.push('<span class="eq-plus">+</span>');p.push(`${coef(pg,f,n)}<span class="eq-f">${f}</span>`);});
+  document.getElementById('eq-bar').innerHTML=p.join('');
+}
+
+function renderZone(side, atoms, defs){
+  const body=document.getElementById(side+'-body');
+  const foot=document.getElementById(side+'-foot');
+  body.innerHTML='';
+  const {grps, extra}=group(atoms,defs);
+
+  grps.forEach(({f,n})=>{
+    for(let i=0;i<n;i++){
+      const d=document.createElement('div');
+      d.className='mcl';
+      d.title=`${f} — 탭해서 제거`;
+      d.innerHTML=molSVG(f)+`<div class="mcl-label">${f}</div><div class="xbtn">✕</div>`;
+      d.addEventListener('pointerdown',ev=>{ev.stopPropagation();removeMol(side,f);});
+      body.appendChild(d);
+    }
+  });
+
+  // leftover atoms
+  Object.entries(extra).forEach(([el,cnt])=>{
+    const a=AD[el]||{bg:'#aaa',bd:'#888',tx:'#fff'};
+    for(let i=0;i<cnt;i++){
+      const d=document.createElement('div');
+      d.className='mcl extra';
+      d.title=`${el} 원자(남은 원자) — 탭해서 제거`;
+      d.innerHTML=`<div class="ab" style="background:${a.bg};border-color:${a.bd};color:${a.tx}">${el}</div>
+        <div class="mcl-label">${el}</div><div class="xbtn">✕</div>`;
+      d.addEventListener('pointerdown',ev=>{ev.stopPropagation();removeAtom(side,el);});
+      body.appendChild(d);
+    }
+  });
+
+  // counts
+  foot.innerHTML=els().filter(e=>atoms[e]>0).map(e=>{
+    const a=AD[e];
+    return `<div class="cbadge">
+      <div class="cdot" style="background:${a.bg};border-color:${a.bd}"></div>
+      <span>${e}: ${atoms[e]}개</span></div>`;
+  }).join('') || `<span style="font-size:9px;color:#aaa">← 원자를 드래그해 넣으세요</span>`;
+}
+
+function renderScale(){
+  const allEls=els();
+  const lt=allEls.reduce((s,e)=>s+(rAt[e]||0),0);
+  const rt=allEls.reduce((s,e)=>s+(pAt[e]||0),0);
+  const tilt=Math.max(-15,Math.min(15,(lt-rt)*1.8));
+  const bar=document.getElementById('sbar');
+  bar.style.transform=`rotate(${tilt}deg)`;
+  bar.classList.toggle('ok',lt===rt&&lt>0);
+}
+
+function updateStat(){
+  const allEls=els();
+  const lt=allEls.reduce((s,e)=>s+(rAt[e]||0),0);
+  const rt=allEls.reduce((s,e)=>s+(pAt[e]||0),0);
+  const sb=document.getElementById('stat');
+  if(lt===0&&rt===0){sb.className='';sb.textContent='왼쪽 원자를 드래그해서 반응물·생성물 영역에 넣으세요';return;}
+  if(lt===rt&&lt>0){sb.className='ok';sb.textContent=`✅ 원자 수 일치 (각 ${lt}개) — 확인 버튼을 눌러보세요!`;}
+  else{sb.className='';sb.textContent=`반응물 ${lt}개 / 생성물 ${rt}개`;}
+}
+
+/* ═══════════════════ ATOM OPS ════════════════════════════ */
+function add(side,el,delta=1){
+  const m=side==='r'?rAt:pAt;
+  m[el]=(m[el]||0)+delta;
+  hist.push({side,el,delta});
+}
+function removeAtom(side,el){
+  const m=side==='r'?rAt:pAt;
+  if(!m[el]||m[el]<1)return;
+  m[el]--;if(m[el]===0)delete m[el];
+  hist.push({side,el,delta:-1});
+  refresh();
+}
+function removeMol(side,f){
+  const rec=COMP[f],m=side==='r'?rAt:pAt;
+  for(const [e,c] of Object.entries(rec)){if(!m[e]||m[e]<c)return;}
+  for(const [e,c] of Object.entries(rec)){
+    m[e]-=c;if(m[e]<=0)delete m[e];
+    hist.push({side,el:e,delta:-c});
+  }
+  refresh();
+}
+function undo(){
+  if(!hist.length)return;
+  const last=hist.pop(),m=last.side==='r'?rAt:pAt;
+  m[last.el]=(m[last.el]||0)-last.delta;
+  if(m[last.el]<=0)delete m[last.el];
+  refresh();
+}
+function refresh(){renderEq();renderZone('r',rAt,RXN[ri].r);renderZone('p',pAt,RXN[ri].p);renderScale();updateStat();}
+function resetAll(){rAt={};pAt={};hist=[];render();}
+function selRxn(i){ri=i;rAt={};pAt={};hist=[];render();}
+
+/* ═══════════════════ DRAG ═══════════════════════════════ */
+const gh=document.getElementById('gh');
+let dg=null, lastX=0, lastY=0;
+
+function beginDrag(e,el){
+  e.preventDefault();
+  const a=AD[el];
+  gh.style.cssText=`display:flex;background:${a.bg};border-color:${a.bd};color:${a.tx};
+    left:${e.clientX-25}px;top:${e.clientY-25}px;
+    box-shadow:0 10px 28px rgba(0,0,0,.4);`;
+  gh.textContent=el; dg={el}; lastX=e.clientX; lastY=e.clientY;
+  document.getElementById('rz').classList.add('over');
+  document.getElementById('pz').classList.add('over');
+  document.addEventListener('pointermove',onMove,{passive:false});
+  document.addEventListener('pointerup',onUp);
+  document.addEventListener('pointercancel',onCancel);
+}
+function onMove(e){e.preventDefault();lastX=e.clientX;lastY=e.clientY;gh.style.left=(lastX-25)+'px';gh.style.top=(lastY-25)+'px';}
+function onUp(){cleanup();if(!dg)return;const el=dg.el;dg=null;drop(el,lastX,lastY);}
+function onCancel(){cleanup();dg=null;}
+function cleanup(){
+  document.removeEventListener('pointermove',onMove);
+  document.removeEventListener('pointerup',onUp);
+  document.removeEventListener('pointercancel',onCancel);
+  gh.style.display='none';
+  document.getElementById('rz').classList.remove('over');
+  document.getElementById('pz').classList.remove('over');
+}
+function drop(el,cx,cy){
+  gh.style.visibility='hidden';
+  const hit=document.elementFromPoint(cx,cy);
+  gh.style.visibility='';gh.style.display='none';
+  const inR=document.getElementById('rz').contains(hit);
+  const inP=document.getElementById('pz').contains(hit);
+  if(inR||inP){add(inR?'r':'p',el,1);refresh();return;}
+  const rr=document.getElementById('rz').getBoundingClientRect();
+  const pr=document.getElementById('pz').getBoundingClientRect();
+  if(cx>=rr.left&&cx<=rr.right&&cy>=rr.top&&cy<=rr.bottom){add('r',el,1);refresh();}
+  else if(cx>=pr.left&&cx<=pr.right&&cy>=pr.top&&cy<=pr.bottom){add('p',el,1);refresh();}
+}
+
+/* ═══════════════════ CHECK ══════════════════════════════ */
+function check(){
+  const allEls=els();
+  const lt=allEls.reduce((s,e)=>s+(rAt[e]||0),0);
+  const rt=allEls.reduce((s,e)=>s+(pAt[e]||0),0);
+  const sb=document.getElementById('stat');
+  if(lt===0&&rt===0){sb.className='warn';sb.textContent='⚠️ 원자를 먼저 배치해주세요!';return;}
+  const rx=RXN[ri];
+  const rg=group(rAt,rx.r), pg=group(pAt,rx.p);
+  const hasExtra=Object.values(rg.extra).some(v=>v>0)||Object.values(pg.extra).some(v=>v>0);
+  const balanced=allEls.every(e=>(rAt[e]||0)===(pAt[e]||0));
+  const coefOk=rx.r.every(({f,n})=>{const g=rg.grps.find(x=>x.f===f);return g&&g.n===n;})
+             &&rx.p.every(({f,n})=>{const g=pg.grps.find(x=>x.f===f);return g&&g.n===n;});
+  if(balanced&&!hasExtra&&coefOk){
+    sb.className='ok';sb.textContent=`🎉 정답! "${rx.name}" — 원자가 사라지지 않았어요! 질량보존의 법칙이 성립합니다.`;
+    confetti();
+  } else if(balanced&&!hasExtra){
+    sb.className='ok';sb.textContent='✅ 원자 수 일치! 계수도 정답과 비교해 보세요.';
+  } else {
+    const bad=allEls.filter(e=>(rAt[e]||0)!==(pAt[e]||0))
+      .map(e=>`${e}: 반응물${rAt[e]||0} ≠ 생성물${pAt[e]||0}`);
+    sb.className='warn';
+    sb.textContent=bad.length?`⚖️ 불균형 — ${bad.join(' / ')}`:
+      '⚠️ 분자를 완성하지 못한 남은 원자가 있어요!';
+  }
+}
+
+/* ═══════════════════ CONFETTI ═══════════════════════════ */
+let lastBang=0;
+function confetti(){
+  const now=Date.now();if(now-lastBang<2500)return;lastBang=now;
+  const cols=Object.values(AD).map(a=>a.bg);
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');el.className='cf';
+    const s=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${s}px;height:${s}px;
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation-delay:${Math.random()*.9}s;
+      animation-duration:${1.4+Math.random()*.8}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3000);
+  }
+}
+
+/* ═══════════════════ INIT ═══════════════════════════════ */
+render();
+</script>
+</body>
+</html>
