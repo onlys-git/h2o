@@ -64,26 +64,27 @@ html,body{
 /* EQUATION BAR */
 #eq-bar{
   flex-shrink:0;background:var(--white);
-  border-bottom:2px solid var(--bluem);
-  padding:7px 10px;
+  border-bottom:3px solid var(--bluem);
+  padding:10px 14px;
   display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:4px;box-shadow:0 1px 4px var(--shadow);
+  gap:6px;box-shadow:0 2px 6px var(--shadow);
+  min-height:64px;
 }
 .eq-c{
-  min-width:28px;height:28px;padding:0 5px;
-  border-radius:7px;border:2.5px solid var(--bluem);
+  min-width:38px;height:38px;padding:0 8px;
+  border-radius:9px;border:3px solid var(--bluem);
   background:var(--bluel);color:var(--blue);
-  font-size:clamp(12px,2vw,17px);font-weight:900;font-family:monospace;
+  font-size:clamp(18px,3vw,26px);font-weight:900;font-family:monospace;
   display:flex;align-items:center;justify-content:center;transition:all .3s;
 }
 .eq-c.active{border-color:var(--ora);background:#FFF3E0;color:var(--ora);}
 .eq-c.correct{border-color:#4CAF50;background:var(--grnl);color:var(--grn);}
-.eq-f{font-size:clamp(12px,2vw,17px);font-weight:700;color:#1A237E;font-family:'Times New Roman',serif;}
-.eq-plus{font-size:16px;font-weight:900;color:#90A4AE;padding:0 2px;}
-.eq-arr{font-size:16px;font-weight:900;color:var(--blue);padding:0 4px;}
+.eq-f{font-size:clamp(18px,3vw,26px);font-weight:700;color:#1A237E;font-family:'Times New Roman',serif;}
+.eq-plus{font-size:22px;font-weight:900;color:#90A4AE;padding:0 4px;}
+.eq-arr{font-size:26px;font-weight:900;color:var(--blue);padding:0 6px;}
 
 /* MAIN */
-#main{flex:1;min-height:0;display:flex;}
+#main{flex:0 0 auto;height:34vh;min-height:160px;max-height:260px;display:flex;}
 
 /* PALETTE */
 #pal{
@@ -204,41 +205,72 @@ html,body{
 
 /* BOTTOM */
 #bot{
-  flex-shrink:0;background:var(--white);border-top:2px solid var(--bluem);
-  padding:7px 10px;display:flex;align-items:center;gap:8px;
+  flex:1;min-height:0;
+  background:var(--white);border-top:3px solid var(--bluem);
+  padding:10px 12px;
+  display:flex;flex-direction:column;gap:8px;
   box-shadow:0 -2px 8px var(--shadow);
+  overflow:hidden;
 }
-#scale{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;}
-#sbeam{width:100px;height:14px;position:relative;display:flex;align-items:center;justify-content:center;}
+#bot-top{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#scale{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;}
+#sbeam{width:110px;height:18px;position:relative;display:flex;align-items:center;justify-content:center;}
 #sbar{
-  width:88px;height:5px;background:#B0BEC5;border-radius:3px;
+  width:96px;height:7px;background:#B0BEC5;border-radius:4px;
   transform-origin:center;transition:transform .5s cubic-bezier(.34,1.56,.64,1),background .3s;
 }
-#sbar.ok{background:#4CAF50;box-shadow:0 0 8px rgba(76,175,80,.4);}
+#sbar.ok{background:#4CAF50;box-shadow:0 0 10px rgba(76,175,80,.5);}
 #spiv{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:9px;height:9px;background:#607D8B;border-radius:50%;
+  width:11px;height:11px;background:#607D8B;border-radius:50%;
   box-shadow:0 1px 3px rgba(0,0,0,.3);
 }
-#slbl{font-size:8px;color:#90A4AE;}
+#slbl{font-size:9px;color:#90A4AE;margin-top:2px;}
 
 #stat{
-  flex:1;text-align:center;font-size:clamp(9px,1.7vw,12px);font-weight:700;
-  padding:6px 8px;border-radius:9px;background:#F5F5F5;color:#90A4AE;
-  transition:all .3s;line-height:1.4;
+  flex:1;
+  font-size:clamp(12px,2vw,15px);font-weight:700;
+  padding:8px 12px;border-radius:10px;background:#F5F5F5;color:#90A4AE;
+  transition:all .3s;line-height:1.5;
+  display:flex;align-items:center;
 }
 #stat.ok{background:var(--grnl);color:var(--grn);animation:bump .35s;}
 #stat.warn{background:#FFF3E0;color:var(--ora);}
 @keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 
-#chk-btn{
-  flex-shrink:0;
-  background:linear-gradient(135deg,#43A047,#2E7D32);
-  color:#fff;border:none;padding:10px 16px;border-radius:11px;
-  font-size:clamp(11px,2vw,14px);font-weight:900;cursor:pointer;font-family:inherit;
-  box-shadow:0 3px 8px rgba(46,125,50,.35);
+/* DETAIL BOX — shows breakdown after check */
+#detail{
+  flex:1;min-height:0;
+  border-radius:12px;border:2px solid var(--bluem);
+  background:var(--bluel);
+  padding:10px 14px;
+  font-size:clamp(12px,1.9vw,14px);
+  color:#1A237E;
+  line-height:1.7;
+  overflow-y:auto;
+  scrollbar-width:thin;
+  display:none;
 }
-#chk-btn:active{transform:scale(.95);}
+#detail.show{display:block;}
+#detail.ok-bg{border-color:#4CAF50;background:var(--grnl);color:#1B5E20;}
+#detail.warn-bg{border-color:#FF8F00;background:#FFF8E1;color:#5D4037;}
+
+#bot-btns{flex-shrink:0;display:flex;gap:8px;}
+#chk-btn{
+  flex:1;
+  background:linear-gradient(135deg,#43A047,#2E7D32);
+  color:#fff;border:none;padding:12px 0;border-radius:12px;
+  font-size:clamp(14px,2.2vw,17px);font-weight:900;cursor:pointer;font-family:inherit;
+  box-shadow:0 3px 10px rgba(46,125,50,.4);letter-spacing:.3px;
+}
+#chk-btn:active{transform:scale(.97);}
+#reset-small{
+  flex-shrink:0;
+  background:#fff;color:#E53935;border:2px solid #EF9A9A;
+  padding:12px 16px;border-radius:12px;
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+#reset-small:active{background:#FFEBEE;}
 
 /* GHOST */
 #gh{
@@ -276,7 +308,6 @@ html,body{
     <small>미래엔 중학교 3학년 과학 1단원</small>
   </div>
   <button id="undo-btn" onclick="undo()">↺ 취소</button>
-  <button id="reset-btn" onclick="resetAll()">🗑 초기화</button>
 </div>
 
 <div id="tabs"></div>
@@ -311,12 +342,18 @@ html,body{
 </div>
 
 <div id="bot">
-  <div id="scale">
-    <div id="sbeam"><div id="sbar"></div><div id="spiv"></div></div>
-    <div id="slbl">⚖️ 양팔저울</div>
+  <div id="bot-top">
+    <div id="scale">
+      <div id="sbeam"><div id="sbar"></div><div id="spiv"></div></div>
+      <div id="slbl">⚖️ 양팔저울</div>
+    </div>
+    <div id="stat">왼쪽 원자를 드래그해서 반응물·생성물 영역에 넣으세요</div>
   </div>
-  <div id="stat">왼쪽 원자를 드래그해서 반응물·생성물 영역에 넣으세요</div>
-  <button id="chk-btn" onclick="check()">✓ 확인</button>
+  <div id="detail"></div>
+  <div id="bot-btns">
+    <button id="chk-btn" onclick="check()">✓ 확인하기</button>
+    <button id="reset-small" onclick="resetAll()">🗑 초기화</button>
+  </div>
 </div>
 
 <div id="gh"></div>
@@ -718,9 +755,10 @@ function undo(){
   if(m[last.el]<=0)delete m[last.el];
   refresh();
 }
-function refresh(){renderEq();renderZone('r',rAt,RXN[ri].r);renderZone('p',pAt,RXN[ri].p);renderScale();updateStat();}
-function resetAll(){rAt={};pAt={};hist=[];render();}
-function selRxn(i){ri=i;rAt={};pAt={};hist=[];render();}
+function refresh(){renderEq();renderZone('r',rAt,RXN[ri].r);renderZone('p',pAt,RXN[ri].p);renderScale();updateStat();hideDetail();}
+function resetAll(){rAt={};pAt={};hist=[];hideDetail();render();}
+function selRxn(i){ri=i;rAt={};pAt={};hist=[];hideDetail();render();}
+function hideDetail(){const d=document.getElementById('detail');d.classList.remove('show');d.className='';}
 
 /* ═══════════════════ DRAG ═══════════════════════════════ */
 const gh=document.getElementById('gh');
@@ -769,24 +807,71 @@ function check(){
   const lt=allEls.reduce((s,e)=>s+(rAt[e]||0),0);
   const rt=allEls.reduce((s,e)=>s+(pAt[e]||0),0);
   const sb=document.getElementById('stat');
-  if(lt===0&&rt===0){sb.className='warn';sb.textContent='⚠️ 원자를 먼저 배치해주세요!';return;}
+  const dt=document.getElementById('detail');
+
+  if(lt===0&&rt===0){
+    sb.className='warn'; sb.textContent='⚠️ 원자를 먼저 배치해주세요!';
+    dt.className=''; dt.classList.remove('show'); return;
+  }
+
   const rx=RXN[ri];
   const rg=group(rAt,rx.r), pg=group(pAt,rx.p);
   const hasExtra=Object.values(rg.extra).some(v=>v>0)||Object.values(pg.extra).some(v=>v>0);
   const balanced=allEls.every(e=>(rAt[e]||0)===(pAt[e]||0));
   const coefOk=rx.r.every(({f,n})=>{const g=rg.grps.find(x=>x.f===f);return g&&g.n===n;})
              &&rx.p.every(({f,n})=>{const g=pg.grps.find(x=>x.f===f);return g&&g.n===n;});
+
+  // Build detail lines
+  let lines=[];
+  // Atom balance rows
+  lines.push('<b>🔍 원소별 원자 수 비교</b>');
+  allEls.forEach(e=>{
+    const l=rAt[e]||0, r=pAt[e]||0;
+    const ok=l===r;
+    const a=AD[e]||{bg:'#aaa'};
+    lines.push(`<span style="display:inline-flex;align-items:center;gap:6px;margin:2px 0;">
+      <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${a.bg};border:1.5px solid rgba(0,0,0,.15);vertical-align:middle;"></span>
+      <b>${e}</b>: 반응물 <b>${l}개</b> ${ok?'✅':'≠'} 생성물 <b>${r}개</b>
+      ${ok?'<span style="color:#2E7D32"> → 일치!</span>':'<span style="color:#E65100"> → '+(l>r?`${l-r}개 부족`:`${r-l}개 초과`)+'</span>'}
+    </span>`);
+  });
+
+  // Extra atoms warning
+  if(hasExtra){
+    const rEx=Object.entries(rg.extra).filter(([,v])=>v>0).map(([e,v])=>`${e} ${v}개`).join(', ');
+    const pEx=Object.entries(pg.extra).filter(([,v])=>v>0).map(([e,v])=>`${e} ${v}개`).join(', ');
+    if(rEx) lines.push(`⚠️ 반응물에 분자를 완성 못한 원자가 남아있어요: <b>${rEx}</b>`);
+    if(pEx) lines.push(`⚠️ 생성물에 분자를 완성 못한 원자가 남아있어요: <b>${pEx}</b>`);
+  }
+
+  // Coefficient check
+  lines.push('<b>📐 계수 확인</b>');
+  rx.r.forEach(({f,n})=>{
+    const g=rg.grps.find(x=>x.f===f); const got=g?g.n:0;
+    lines.push(`반응물 ${f}: ${got===n?'✅':'❌'} 현재 <b>${got}</b>개 (정답: <b>${n}</b>개)`);
+  });
+  rx.p.forEach(({f,n})=>{
+    const g=pg.grps.find(x=>x.f===f); const got=g?g.n:0;
+    lines.push(`생성물 ${f}: ${got===n?'✅':'❌'} 현재 <b>${got}</b>개 (정답: <b>${n}</b>개)`);
+  });
+
+  dt.innerHTML = lines.map(l=>l.startsWith('<b>')?`<div style="margin-top:6px;margin-bottom:2px;">${l}</div>`:`<div>${l}</div>`).join('');
+  dt.classList.add('show');
+
   if(balanced&&!hasExtra&&coefOk){
-    sb.className='ok';sb.textContent=`🎉 정답! "${rx.name}" — 원자가 사라지지 않았어요! 질량보존의 법칙이 성립합니다.`;
+    sb.className='ok'; sb.textContent=`🎉 정답! "${rx.name}" — 질량보존의 법칙 성립!`;
+    dt.className='show ok-bg';
     confetti();
   } else if(balanced&&!hasExtra){
-    sb.className='ok';sb.textContent='✅ 원자 수 일치! 계수도 정답과 비교해 보세요.';
+    sb.className='ok'; sb.textContent='✅ 원자 수는 맞았어요! 계수를 다시 확인해보세요.';
+    dt.className='show';
   } else {
-    const bad=allEls.filter(e=>(rAt[e]||0)!==(pAt[e]||0))
-      .map(e=>`${e}: 반응물${rAt[e]||0} ≠ 생성물${pAt[e]||0}`);
+    const badEls=allEls.filter(e=>(rAt[e]||0)!==(pAt[e]||0));
     sb.className='warn';
-    sb.textContent=bad.length?`⚖️ 불균형 — ${bad.join(' / ')}`:
-      '⚠️ 분자를 완성하지 못한 남은 원자가 있어요!';
+    sb.textContent=badEls.length
+      ? `⚖️ 아직 불균형 — ${badEls.map(e=>`${e}: 반응물${rAt[e]||0} ≠ 생성물${pAt[e]||0}`).join(' / ')}`
+      : '⚠️ 남은 원자가 있어요! 분자를 완성해주세요.';
+    dt.className='show warn-bg';
   }
 }
 
